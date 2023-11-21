@@ -1,5 +1,6 @@
 module montecarlo3d
     use hyperparameter
+    use, intrinsic :: iso_fortran_env
     implicit none
     PUBLIC :: simulate3d
     PRIVATE
@@ -9,8 +10,11 @@ contains
     ! -----------------------------------------------------
     subroutine init_spin(spin)
         integer, dimension(:, :, :), allocatable :: spin
+        real, dimension(:, :, :), allocatable :: rand
         allocate(spin(size, size, size))
-        spin = 1
+        allocate(rand(size, size, size))
+        call random_number(rand)
+        spin = 2 * int(2 * rand) - 1
     end subroutine init_spin
 
     ! Metropolis-Hastings algorithm for Monte Carlo simulation
@@ -168,7 +172,8 @@ contains
     subroutine simulate3d(beta, E, M, C, X)
         real, intent(in)    :: beta
         real, intent(inout) :: E, M, C, X
-        real                :: tempE, tempM, E1, M1, E2, M2
+        real                :: tempE, tempM
+        real(real64)        :: E1, M1, E2, M2
         integer             :: norm, volume, step
 
         ! initialize spin configuration
@@ -180,7 +185,7 @@ contains
         M2 = 0
 
         ! Monte Carlo simulation
-        volume = size ** 3
+        volume = size ** dim
         norm = mcstep * volume
         ! equilibration steps
         do step = 1, eqstep
@@ -191,15 +196,15 @@ contains
             call metropolis3d(spin, beta)
             tempE = calc_energy(spin)
             tempM = calc_magnetization(spin)
-            E1 = E1 + tempE / norm
-            M1 = M1 + tempM / norm
+            E1 = E1 + tempE
+            M1 = M1 + tempM
             E2 = E2 + tempE ** 2 / norm
             M2 = M2 + tempM ** 2 / norm
         end do
-        E = E1
-        M = M1
-        C = (E2 - volume * E1 * E1) * beta ** 2
-        X = (M2 - volume * M1 * M1) * beta
+        E = E1 / norm
+        M = M1 / norm
+        C = (E2 - volume * (E1 / norm) ** 2) * beta ** 2
+        X = (M2 - volume * (M1 / norm) ** 2) * beta
     end subroutine simulate3d
 
 end module
