@@ -11,7 +11,7 @@ program main
 
     ! statistical values calculated through Monte Carlo
     !--------------------------------------------------
-    real, dimension(:), allocatable :: Es, Ms, Cs, Xs
+    real, dimension(:), allocatable :: Ts, Es, Ms, Cs, Xs
     integer                         :: num_steps, index
     real                            :: T, E, M, C, X
 
@@ -49,16 +49,21 @@ program main
     end do
 
     ! allocate array to store simulation results
+    ! ------------------------------------------
     num_steps = int((final_temp - init_temp) / temp_step) + 1
+    allocate(Ts(num_steps))
     allocate(Es(num_steps))
     allocate(Ms(num_steps))
     allocate(Cs(num_steps))
     allocate(Xs(num_steps))
+    Ts = 0
     Es = 0
     Ms = 0
     Cs = 0
     Xs = 0
 
+    ! parallel Monte Carlo simulation
+    ! -------------------------------
     !$OMP PARALLEL DO PRIVATE(index, T, E, M, C, X)
     do index = 1, num_steps
         T = init_temp + temp_step * (index - 1)
@@ -68,6 +73,7 @@ program main
         X = 0
 
         call simulate3d(1.0 / T, E, M, C, X)
+        Ts(index) = T
         Es(index) = E
         Ms(index) = M
         Cs(index) = C
@@ -75,6 +81,7 @@ program main
     end do
     !$OMP END PARALLEL DO
 
+    deallocate(Ts)
     deallocate(Es)
     deallocate(Ms)
     deallocate(Cs)

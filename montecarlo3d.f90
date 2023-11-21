@@ -17,17 +17,15 @@ contains
     ! --------------------------------------------------------
     subroutine metropolis3d(spin, beta)
         ! argument of the subroutine
-        ! --------------------------
         integer, dimension(:, :, :), allocatable :: spin
         real, intent(in)                         :: beta
         ! local variables of the subroutine
-        ! ---------------------------------
         integer i, x, y, z, s, R
         integer xpp, ypp, zpp, xnn, ynn, znn ! neighbor spins
         real x0, y0, z0, rand
         real dH
 
-        ! ---------------------------------
+        ! Metropolis-Hastings algorithm main body
         do i = 1, size ** dim
             call random_number(x0)
             call random_number(y0)
@@ -74,9 +72,10 @@ contains
             ! flip the spin and decide the next state
             R = xpp + ypp + zpp + xnn + ynn + znn
             dH = 2 * s * R
+            call random_number(rand)
             if (dH < 0.) then
                 s = -s
-            elseif (rand < exp(-dH * beta)) then
+            elseif (rand < exp(-beta * dH)) then
                 s = -s
             endif
             spin(x, y, z) = s
