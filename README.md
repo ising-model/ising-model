@@ -23,15 +23,15 @@ bash compile.sh
 
 ## Options
 
-- -s, --size        size of the lattice               (default: 30)'
-- -d, --dim         dimension of the lattice          (default: 3)'
-- -i, --init_temp   initial temperature of the output (default: 1.5)'
-- -f, --final_temp  final temperature of the output   (default: 6.5)'
-- -t, --temp_step   step size of the temperature      (default: 0.04)'
-- -m, --mcstep      number of Monte Carlo steps       (default: 1000)'
-- -e, --eqstep      number of steps for equilibration (default: 1000)'
-- -r, --dir         directory to save the results     (default: ./results/)'
-- -h, --help        print usage information and exit'
+- -s, --size :        size of the lattice               (default: 30)
+- -d, --dim :         dimension of the lattice          (default: 3)
+- -i, --init_temp :   initial temperature of the output (default: 1.5)
+- -f, --final_temp :  final temperature of the output   (default: 6.5)
+- -t, --temp_step :   step size of the temperature      (default: 0.04)
+- -m, --mcstep :      number of Monte Carlo steps       (default: 1000)
+- -e, --eqstep :      number of steps for equilibration (default: 1000)
+- -r, --dir :         directory to save the results     (default: ./results/)
+- -h, --help :        print usage information and exit
 
 ## Examples
 
