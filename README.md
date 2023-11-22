@@ -13,7 +13,22 @@ It is possible to calculate mean energy, magnetization, specific heat, and susce
 <!-- 
 ![Result of 3D lattice](./result/plot_L30_D3_EQ16000_MC16000.png) -->
 
-## Install requirements
+## How to run Monte Carlo simulation
+
+### Clone the git repository
+
+First, clone the git repository on your own computer directory (e.g. home directory).
+
+After cloning the repository, enter the source directory.
+
+```bash
+git clone https://github.com/ising-model/ising-model.git
+cd ising-model
+```
+
+### Compile the code
+
+In order to run the simulation, you have to compile the code first.
 
 To compile the code, simply run the command below:
 
@@ -21,7 +36,24 @@ To compile the code, simply run the command below:
 bash compile.sh
 ```
 
-## Options
+### Run the simulation
+
+To run experiments, run the command below:
+
+#### 2D-lattice Ising model
+
+```bash
+./main --size 30 --dim 2 --init_temp 1.5 --final_temp 3.5 --temp_step 0.02 --eqstep 1000 --mcstep 1000
+```
+
+#### 3D-lattice Ising model
+```bash
+./main --size 30 --dim 3 --init_temp 1.5 --final_temp 6.5 --temp_step 0.04 --eqstep 3000 --mcstep 3000
+```
+
+#### Options
+
+To run simulation with your own custom options, run the program with the options below:
 
 - -s, --size :        size of the lattice               (default: 30)
 - -d, --dim :         dimension of the lattice          (default: 3)
@@ -32,21 +64,6 @@ bash compile.sh
 - -e, --eqstep :      number of steps for equilibration (default: 1000)
 - -r, --dir :         directory to save the results     (default: ./results/)
 - -h, --help :        print usage information and exit
-
-## Examples
-
-To run experiments, run the command below:
-
-### 2D-lattice Ising model
-
-```bash
-./main --size 30 --dim 2 --init_temp 1.5 --final_temp 3.5 --temp_step 0.02 --eqstep 1000 --mcstep 1000
-```
-
-### 3D-lattice Ising model
-```bash
-./main --size 30 --dim 3 --init_temp 1.5 --final_temp 6.5 --temp_step 0.04 --eqstep 3000 --mcstep 3000
-```
 
 ## Future works to be done
 We want to parallelize the sampling procedure using GPU.
