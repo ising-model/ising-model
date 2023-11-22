@@ -4,7 +4,7 @@ A Fortran implementation of Markov Chain Monte Carlo for 2D and 3D square-lattic
 
 It is possible to calculate mean energy, magnetization, specific heat, and susceptibility at various temperatures and save it to a csv file.
 
-- [x] OpenMPI multiprocessing supported
+- [x] OpenMP supported
 
 > [!Warning]
 > For precise results, experiments on a large scale 3D-lattice Ising model need *a lot of* energy and time. We strongly recommend you to use a server with decent multi-core CPUs.
