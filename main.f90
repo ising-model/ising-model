@@ -19,6 +19,8 @@ program main
     character(len=7)                :: size_char, dim_char, eqstep_char, mcstep_char
     character(len=100)              :: csv_file
 
+    integer            :: start, end, rate
+
     ! receive argument from the command line
     ! --------------------------------------
     opts(1) = option_s('size', .true.,  's')
@@ -78,16 +80,16 @@ program main
     ! parallel Monte Carlo simulation
     ! -------------------------------
     progress = 0.
-    write (*, 101, advance='no') creturn, progress, 100.0
-    101 format(a, "Progress: ", f5.1, '% / ', f5.1, '%')
+    ! write (*, 101, advance='no') creturn, progress, 100.0, 0.0
+    call system_clock(start, rate)
     !$OMP PARALLEL DO PRIVATE(index, T, E, M, C, X)
     do index = 1, num_steps
         T = init_temp + temp_step * (index - 1)
 
         if (dim == 2) then
-            call simulate2d(1.0 / T, E, M, C, X)
+            call simulate2d(1.0 / T, E, M, C, X, progress, 100. / (num_steps * (eqstep + mcstep)))
         else
-            call simulate3d(1.0 / T, E, M, C, X)
+            call simulate3d(1.0 / T, E, M, C, X, progress, 100. / (num_steps * (eqstep + mcstep)))
         endif
 
         Ts(index) = T
@@ -95,14 +97,11 @@ program main
         Ms(index) = abs(M)
         Cs(index) = C
         Xs(index) = X
-
-        ! show progress bar
-        !$OMP ATOMIC
-        progress = progress + 100. / num_steps
-        write (*, 101, advance='no') creturn, progress, 100.0
     end do
     !$OMP END PARALLEL DO
+    call system_clock(end)
     print *, ""
+    print '("Time = ",f12.6," seconds.")', real(end - start) / real(rate)
 
     ! save results to the directory
     ! -----------------------------

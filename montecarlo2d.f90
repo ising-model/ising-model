@@ -10,11 +10,8 @@ contains
     ! -----------------------------------------------------
     subroutine init_spin(spin)
         integer, dimension(:, :), allocatable :: spin
-        real, dimension(:, :), allocatable :: rand
         allocate(spin(size, size))
-        allocate(rand(size, size))
-        call random_number(rand)
-        spin = 2 * int(2 * rand) - 1
+        spin = 1
     end subroutine init_spin
 
     ! Metropolis-Hastings algorithm for Monte Carlo simulation
@@ -75,7 +72,7 @@ contains
 
     ! calculation of energy of the spin using cshift
     ! ------------------------------
-    real function calc_energy(spin)
+    real(real64) function calc_energy(spin)
         integer, dimension(:, :), allocatable, intent(in) :: spin
         integer, dimension(:, :), allocatable :: xps
         integer, dimension(:, :), allocatable :: yps
@@ -93,16 +90,16 @@ contains
 
     ! calculation of magnetization of spin
     ! ------------------------------------
-    real function calc_magnetization(spin)
+    real(real64) function calc_magnetization(spin)
         integer, dimension(:, :), allocatable, intent(in) :: spin
-        calc_magnetization = sum(spin)
+        calc_magnetization = sum(spin) / (2 * dim)
     end function calc_magnetization
 
     ! naive calculation of energy of the spin
     ! ---------------------------------
     real function calc_energy_naive(spin)
         integer, dimension(:, :), allocatable, intent(in) :: spin
-        real En
+        real(real64) En
         integer x, y, R
         integer xpp, ypp, xnn, ynn ! neighbor spins
         En = 0
@@ -139,12 +136,16 @@ contains
         calc_energy_naive = En / (2 * dim)
     end function calc_energy_naive
 
-    subroutine simulate2d(beta, E, M, C, X)
+    subroutine simulate2d(beta, E, M, C, X, progress, step_progress)
         real, intent(in)    :: beta
+        real, intent(inout) :: progress
+        real, intent(in)    :: step_progress
         real, intent(inout) :: E, M, C, X
-        real                :: tempE, tempM
+        real(real64)        :: tempE, tempM
         real(real64)        :: E1, M1, E2, M2
-        integer             :: norm, volume, step
+        real(real64)        :: norm, volume
+        integer             :: step
+        101 format(a, "Progress: ", f5.1, '% / ', f5.1, '%')
 
         ! initialize spin configuration
         integer, dimension(:, :), allocatable :: spin
@@ -160,21 +161,28 @@ contains
         ! equilibration steps
         do step = 1, eqstep
             call metropolis2d(spin, beta)
+            ! show progress bar
+            !$OMP ATOMIC
+            progress = progress + step_progress
+            write (*, 101, advance='no') creturn, progress, 100.0
         end do
         ! Monte Carlo steps
         do step = 1, mcstep
             call metropolis2d(spin, beta)
             tempE = calc_energy(spin)
             tempM = calc_magnetization(spin)
-            E1 = E1 + tempE
-            M1 = M1 + tempM
+            E1 = E1 + tempE / norm
+            M1 = M1 + tempM / norm
             E2 = E2 + tempE ** 2 / norm
             M2 = M2 + tempM ** 2 / norm
+            !$OMP ATOMIC
+            progress = progress + step_progress
+            write (*, 101, advance='no') creturn, progress, 100.0
         end do
-        E = E1 / norm
-        M = M1 / norm
-        C = (E2 - volume * (E1 / norm) ** 2) * beta ** 2
-        X = (M2 - volume * (M1 / norm) ** 2) * beta
+        E = E1
+        M = M1
+        C = (E2 - volume * E1 ** 2) * beta ** 2
+        X = (M2 - volume * M1 ** 2) * beta
     end subroutine simulate2d
 
 end module
